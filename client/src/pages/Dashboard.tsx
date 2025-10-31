@@ -18,8 +18,15 @@ import {
   useMediaQuery,
   useTheme,
   Fab,
+  Card,
+  CardContent,
+  Divider,
+  CircularProgress,
+  IconButton,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function Dashboard() {
   const [entries, setEntries] = useState<any[]>([]);
@@ -40,7 +47,6 @@ export default function Dashboard() {
 
   async function fetchEntries(pageNum: number, reset = false) {
     if (loading || (!hasMore && !reset)) return;
-
     setLoading(true);
     const res = await api.get(`/entries?page=${pageNum}&limit=5`);
 
@@ -55,7 +61,6 @@ export default function Dashboard() {
         return [...prev, ...newOnes];
       });
     }
-
     setLoading(false);
   }
 
@@ -74,13 +79,8 @@ export default function Dashboard() {
 
   const handleSubmit = async (data: any, id?: number) => {
     const { id: _ignore, ...payload } = data;
-
-    if (id) {
-      await api.put(`/entries/${id}`, payload);
-    } else {
-      await api.post("/entries", payload);
-    }
-
+    if (id) await api.put(`/entries/${id}`, payload);
+    else await api.post("/entries", payload);
     await refreshEntries();
     setFormOpen(false);
     setEditing(null);
@@ -95,7 +95,6 @@ export default function Dashboard() {
     <>
       <Navbar onAdd={() => { setEditing(null); setFormOpen(true); }} />
 
-      {/* Gradient Background Section */}
       <Box
         sx={{
           minHeight: "100vh",
@@ -104,7 +103,6 @@ export default function Dashboard() {
         }}
       >
         <Container maxWidth="lg">
-          {/* Page Header */}
           <Typography
             variant={isMobile ? "h6" : "h5"}
             fontWeight="bold"
@@ -115,79 +113,144 @@ export default function Dashboard() {
             🎬 My Favorite Movies & Shows
           </Typography>
 
-          {/* Table Wrapper */}
-          <Paper
-            elevation={5}
-            sx={{
-              borderRadius: 3,
-              overflow: "hidden",
-              boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
-            }}
-          >
-            <TableContainer>
-              <Table size={isMobile ? "small" : "medium"}>
-                <TableHead sx={{ backgroundColor: "primary.light" }}>
-                  <TableRow>
-                    {[
-                      "Title",
-                      "Type",
-                      "Director",
-                      "Budget",
-                      "Location",
-                      "Duration",
-                      "Year",
-                      "Actions",
-                    ].map((h) => (
-                      <TableCell
-                        key={h}
-                        sx={{
-                          fontWeight: 600,
-                          fontSize: { xs: "0.8rem", sm: "1rem" },
-                          color: "#333",
-                          backgroundColor: "primary.light",
-                          whiteSpace: "nowrap",
+          {/* ✅ Responsive view: Card layout on mobile, Table on desktop */}
+          {!isMobile ? (
+            <Paper
+              elevation={5}
+              sx={{
+                borderRadius: 3,
+                overflow: "hidden",
+                boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
+              }}
+            >
+              <TableContainer>
+                <Table size="medium">
+                  <TableHead sx={{ backgroundColor: "primary.light" }}>
+                    <TableRow>
+                      {[
+                        "Title",
+                        "Type",
+                        "Director",
+                        "Budget",
+                        "Location",
+                        "Duration",
+                        "Year",
+                        "Actions",
+                      ].map((h) => (
+                        <TableCell
+                          key={h}
+                          sx={{
+                            fontWeight: 600,
+                            color: "#333",
+                            fontSize: "1rem",
+                            backgroundColor: "primary.light",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {h}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {entries.map((e) => (
+                      <EntryRow
+                        key={e.id}
+                        entry={e}
+                        onEdit={(entry) => {
+                          setEditing(entry);
+                          setFormOpen(true);
+                        }}
+                        onDelete={(entry) => setConfirm(entry)}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              {loading && (
+                <Typography align="center" sx={{ py: 2, color: "text.secondary" }}>
+                  Loading...
+                </Typography>
+              )}
+            </Paper>
+          ) : (
+            // ✅ Mobile Card Layout
+            <Box display="flex" flexDirection="column" gap={2}>
+              {entries.map((entry) => (
+                <Card
+                  key={entry.id}
+                  elevation={4}
+                  sx={{
+                    borderRadius: 2,
+                    px: 2,
+                    py: 1.5,
+                    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                    backgroundColor: "white",
+                  }}
+                >
+                  <CardContent sx={{ p: 0 }}>
+                    <Typography variant="subtitle1" fontWeight={600} color="primary">
+                      {entry.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      🎥 {entry.type} • {entry.yearTime || "Unknown Year"}
+                    </Typography>
+                    <Divider sx={{ my: 1 }} />
+                    <Typography variant="body2">
+                      <strong>Director:</strong> {entry.director || "N/A"}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>Budget:</strong> {entry.budget || "N/A"}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>Location:</strong> {entry.location || "N/A"}
+                    </Typography>
+                    <Typography variant="body2">
+                      <strong>Duration:</strong> {entry.duration || "N/A"}
+                    </Typography>
+
+                    {/* Actions */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        gap: 1.5,
+                        mt: 1,
+                      }}
+                    >
+                      <IconButton
+                        color="primary"
+                        onClick={() => {
+                          setEditing(entry);
+                          setFormOpen(true);
                         }}
                       >
-                        {h}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {entries.map((e) => (
-                    <EntryRow
-                      key={e.id}
-                      entry={e}
-                      onEdit={(entry) => {
-                        setEditing(entry);
-                        setFormOpen(true);
-                      }}
-                      onDelete={(entry) => setConfirm(entry)}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        color="error"
+                        onClick={() => setConfirm(entry)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  </CardContent>
+                </Card>
+              ))}
 
-            {loading && (
-              <Typography
-                align="center"
-                sx={{
-                  py: 2,
-                  color: "text.secondary",
-                  fontSize: { xs: "0.9rem", sm: "1rem" },
-                }}
-              >
-                Loading...
-              </Typography>
-            )}
-          </Paper>
+              {loading && (
+                <Box display="flex" justifyContent="center" py={2}>
+                  <CircularProgress size={28} color="primary" />
+                </Box>
+              )}
+            </Box>
+          )}
 
-          {/* Observer Spacer */}
           <Box ref={loaderRef} sx={{ height: 60 }} />
         </Container>
 
-        {/* Floating Add Button for Mobile */}
+        {/* Floating Add Button */}
         <Fab
           color="primary"
           aria-label="add"
@@ -207,7 +270,6 @@ export default function Dashboard() {
         </Fab>
       </Box>
 
-      {/* Entry Form */}
       <EntryForm
         {...({
           open: formOpen,
@@ -217,7 +279,6 @@ export default function Dashboard() {
         } as any)}
       />
 
-      {/* Confirmation Dialog */}
       <ConfirmDialog
         open={!!confirm}
         title="Delete Entry?"

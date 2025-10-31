@@ -21,10 +21,20 @@ export default function EntryForm({ open, initial, onClose, onSubmit }: EntryFor
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{initial ? "Edit Entry" : "Add New Entry"}</DialogTitle>
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <DialogContent className="flex flex-col gap-3 w-96">
+          <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+        <DialogTitle sx={{ fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>
+          {initial ? "Edit Entry" : "Add New Entry"}
+        </DialogTitle>
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          <DialogContent
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              width: "100%",
+              px: { xs: 1, sm: 3 },
+            }}
+          >
           <TextField label="Title" {...register("title")} required />
           <TextField label="Type" {...register("type")} required />
           <TextField label="Director" {...register("director")} required />

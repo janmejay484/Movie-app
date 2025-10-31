@@ -10,17 +10,22 @@ interface ConfirmDialogProps {
 
 export default function ConfirmDialog({ open, title, message, onConfirm, onCancel }: ConfirmDialogProps) {
   return (
-    <Dialog open={open} onClose={onCancel}>
+    <Dialog open={open} onClose={onCancel} fullWidth maxWidth="xs">
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <Typography>{message}</Typography>
+                <Typography sx={{ fontSize: { xs: "0.9rem", sm: "1rem" }, textAlign: "center", p: { xs: 1, sm: 2 } }}>
+          {message}
+        </Typography>
+
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onCancel}>Cancel</Button>
-        <Button onClick={onConfirm} color="error" variant="contained">
-          Delete
-        </Button>
-      </DialogActions>
+        <DialogActions sx={{ justifyContent: "center", gap: 1, pb: 2 }}>
+          <Button onClick={onCancel} size="small">
+            Cancel
+          </Button>
+          <Button onClick={onConfirm} color="error" variant="contained" size="small">
+            Delete
+          </Button>
+        </DialogActions>
     </Dialog>
   );
 }

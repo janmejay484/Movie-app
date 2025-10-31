@@ -9,15 +9,24 @@ interface EntryRowProps {
 }
 
 export default function EntryRow({ entry, onEdit, onDelete }: EntryRowProps) {
-  return (
-    <TableRow hover>
-      <TableCell>{entry.title}</TableCell>
-      <TableCell>{entry.type}</TableCell>
-      <TableCell>{entry.director}</TableCell>
-      <TableCell>{entry.budget}</TableCell>
-      <TableCell>{entry.location}</TableCell>
-      <TableCell>{entry.duration}</TableCell>
-      <TableCell>{entry.yearTime}</TableCell>
+   return (
+      <TableRow
+        hover
+        sx={{
+          "& td": {
+            wordBreak: "break-word",
+            whiteSpace: { xs: "normal", sm: "nowrap" },
+            fontSize: { xs: "0.8rem", sm: "1rem" },
+          },
+        }}
+      >
+        <TableCell>{entry.title}</TableCell>
+        <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>{entry.type}</TableCell>
+        <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>{entry.director}</TableCell>
+        <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>{entry.budget}</TableCell>
+        <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>{entry.location}</TableCell>
+        <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>{entry.duration}</TableCell>
+        <TableCell sx={{ display: { xs: "none", md: "table-cell" } }}>{entry.yearTime}</TableCell>
       <TableCell>
         <IconButton color="primary" onClick={() => onEdit(entry)}>
           <EditIcon />
